@@ -7,7 +7,7 @@ df = pd.read_csv("/interpolated_data_final.csv")
 df = df.sort_values(by=["trackID", "frameNo"]).reset_index(drop=True)
 
 # To calculate instantaneous velocity
-df["velocity"] = np.sqrt((df["x"].diff())*2 + (df["y"].diff())*2) / df.groupby("trackID")["frameNo"].diff()
+df["velocity"] = np.sqrt((df["x"].diff())**2 + (df["y"].diff())**2) / df.groupby("trackID")["frameNo"].diff()
 df["velocity"].fillna(0, inplace=True)
 
 # To calculate average velocity
