@@ -1,0 +1,34 @@
+# To interpolate the data
+import pandas as pd
+import numpy as np
+
+file_path = "/Trackers_DJI_0033.csv"
+df = pd.read_csv(file_path)
+
+df.sort_values(by=["frameNo", "trackID"], inplace=True)
+
+def interpolate_missing_trackIDs(df):
+    frames = df["frameNo"].unique()
+    interpolated_rows = []
+
+    for frame in frames:
+        frame_data = df[df["frameNo"] == frame].copy()
+        frame_data = frame_data.set_index("trackID").sort_index()
+
+        frame_data = frame_data.reindex(range(frame_data.index.min(), frame_data.index.max() + 1))
+        frame_data.interpolate(method='linear', inplace=True)
+
+        interpolated_rows.append(frame_data.reset_index())
+
+    return pd.concat(interpolated_rows, ignore_index=True)
+
+df_interpolated = interpolate_missing_trackIDs(df)
+
+# To save interpolated file
+df_interpolated.to_csv("/content/interpolated_data.csv", index=False)
+
+#To download it in google drive to for easy download for large dataset
+from google.colab import drive
+drive.mount('/content/drive')
+
+df.to_csv("/content/drive/My Drive/interpolated_data.csv", index=False)

@@ -1,0 +1,27 @@
+# To Find instanteous and average velocity
+import pandas as pd
+import numpy as np
+
+df = pd.read_csv("/interpolated_data_final.csv")
+
+df = df.sort_values(by=["trackID", "frameNo"]).reset_index(drop=True)
+
+# To calculate instantaneous velocity
+df["velocity"] = np.sqrt((df["x"].diff())*2 + (df["y"].diff())*2) / df.groupby("trackID")["frameNo"].diff()
+df["velocity"].fillna(0, inplace=True)
+
+# To calculate average velocity
+avg_velocity = df.groupby("trackID").apply(
+    lambda g: np.sqrt((g["x"].iloc[-1] - g["x"].iloc[0])**2 +
+                      (g["y"].iloc[-1] - g["y"].iloc[0])**2) /
+             (g["frameNo"].iloc[-1] - g["frameNo"].iloc[0])
+)
+
+df["average_velocity"] = df["trackID"].map(avg_velocity)
+
+df.to_csv("/content/velocity_data_2.csv", index=False)
+
+from google.colab import drive
+drive.mount('/content/drive')
+
+df.to_csv("/content/drive/My Drive/velocity_data_2.csv", index=False)
